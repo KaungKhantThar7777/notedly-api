@@ -1,12 +1,10 @@
+require('dotenv').config();
+
 const { ApolloServer, gql } = require('apollo-server-express');
 const express = require('express');
-const app = express();
 
-const notes = [
-  { id: '1', content: 'Learn Graphql', author: 'Kaung Khant Thar' },
-  { id: '2', content: 'Learn Nextjs and Graphql', author: 'Sayargyi' },
-  { id: '3', content: 'Learn Python', author: 'KKT' }
-];
+const db = require('./db');
+const models = require('./models');
 
 const typeDefs = gql`
   type Query {
@@ -27,30 +25,30 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     hello: () => 'hello world graphql',
-    notes: () => notes,
-    note: (parent, args) => {
-      const note = notes.find(note => note.id === args.id);
-
-      return note;
+    notes: async () => {
+      return await models.Note.find();
+    },
+    note: async (parent, args) => {
+      return await models.Note.findById(args.id);
     }
   },
   Mutation: {
-    newNote: (parent, args) => {
-      const newNote = {
-        id: String(notes.length + 1),
+    newNote: async (parent, args) => {
+      return await models.Note.create({
         content: args.content,
         author: 'Kaung Khant Thar'
-      };
-      notes.push(newNote);
-      return newNote;
+      });
     }
   }
 };
 
+const app = express();
 const server = new ApolloServer({ typeDefs, resolvers });
 
 server.applyMiddleware({ app, path: '/api' });
 
+const DB_HOST = process.env.DB_HOST;
+db.connect(DB_HOST);
 const port = process.env.PORT || 4000;
 
 app.listen({ port }, () =>
