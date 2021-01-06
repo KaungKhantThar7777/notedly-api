@@ -3,6 +3,10 @@ require('dotenv').config();
 const { ApolloServer, gql } = require('apollo-server-express');
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const cors = require('cors');
+const depthLimit = require('graphql-depth-limit');
+const { createComplexityLimitRule } = require('graphql-validation-complexity');
 
 const db = require('./db');
 const models = require('./models');
@@ -10,6 +14,8 @@ const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 
 const app = express();
+app.use(helmet());
+app.use(cors());
 
 const port = process.env.PORT || 4000;
 const DB_HOST = process.env.DB_HOST;
@@ -31,7 +37,8 @@ const server = new ApolloServer({
     const token = req.headers.authorization;
     const user = getUser(token);
     return { models, user };
-  }
+  },
+  validationRules: [depthLimit(5), createComplexityLimitRule(1000)]
 });
 
 server.applyMiddleware({ app, path: '/api' });

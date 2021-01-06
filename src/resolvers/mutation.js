@@ -15,7 +15,6 @@ const Mutation = {
       throw new AuthenticationError('You must be signed in to create a note.');
     }
 
-    console.log(user);
     return await models.Note.create({
       content: args.content,
       author: mongoose.Types.ObjectId(user.id)
@@ -95,7 +94,7 @@ const Mutation = {
 
     const noteCheck = await models.Note.findById(id);
     const hasUser = noteCheck.favoritedBy.includes(user.id);
-    console.log(user);
+
     if (hasUser) {
       return await models.Note.findByIdAndUpdate(
         id,
