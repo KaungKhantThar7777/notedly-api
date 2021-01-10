@@ -22,13 +22,13 @@ const Mutation = {
   },
   updateNote: async (parent, { id, content }, { models, user }) => {
     if (!user) {
-      throw new AuthenticationError('You must be signed in to delete a note.');
+      throw new AuthenticationError('You must be signed in to update a note.');
     }
 
     const note = await models.Note.findById(id);
 
-    if (note && String(note.author) !== user._id) {
-      throw new ForbiddenError("You don't permissions to delete the note.");
+    if (note && String(note.author) !== user.id) {
+      throw new ForbiddenError("You don't permissions to update the note.");
     }
     return await models.Note.findOneAndUpdate(
       { _id: id },
@@ -43,7 +43,7 @@ const Mutation = {
 
     const note = await models.Note.findById(id);
 
-    if (note && String(note.author) !== user._id) {
+    if (note && String(note.author) !== user.id) {
       throw new ForbiddenError("You don't permissions to delete the note.");
     }
     try {
