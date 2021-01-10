@@ -12,7 +12,8 @@ const Query = {
     return await models.User.find({});
   },
   me: async (parent, args, { models, user }) => {
-    return await models.Users.findById(user._id);
+    console.log(user);
+    return await models.User.findById(user.id);
   },
   noteFeed: async (parent, { cursor }, { models }) => {
     const limit = 10;
